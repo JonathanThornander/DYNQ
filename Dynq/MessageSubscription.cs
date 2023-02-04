@@ -1,6 +1,6 @@
 using System;
 
-namespace QuickDash.Core.Messaging
+namespace Dynq
 {
     public abstract class MessageSubscription : IDisposable
     {
@@ -9,7 +9,7 @@ namespace QuickDash.Core.Messaging
 
     public class MessageSubscription<TMessage> : MessageSubscription where TMessage : Message
     {
-        public Action<TMessage> ReceiveMessage;
+        public Action<TMessage> HandleMessage;
 
         public Func<TMessage, bool> ShouldReceive;
 
@@ -18,7 +18,7 @@ namespace QuickDash.Core.Messaging
 
         public MessageSubscription(Action<TMessage> receive, Func<TMessage, bool> shouldReceive)
         {
-            ReceiveMessage = receive;
+            HandleMessage = receive;
             ShouldReceive = shouldReceive;
         }
 

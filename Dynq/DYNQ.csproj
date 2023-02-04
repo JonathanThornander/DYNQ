@@ -3,6 +3,28 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>enable</Nullable>
+    <ApplicationIcon>favicon.ico</ApplicationIcon>
+    <Title>DYNQ</Title>
+    <Version>0.0.1</Version>
+    <Authors>Jonathan Thornander</Authors>
+    <Company>Jonathan Thornander</Company>
+    <Description>A lightweight pub/sub -library for creating message handlers in runtime</Description>
+    <Copyright>Jonathan Thornander</Copyright>
+    <PackageIcon>android-chrome-512x512.png</PackageIcon>
+    <PackageTags>Pub-Sub</PackageTags>
+    <RepositoryUrl>https://github.com/JonathanThornander/DYNQ</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/JonathanThornander/DYNQ</PackageProjectUrl>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="favicon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\..\..\Documents\DYNQ\DYNQ Core\favicon_io\android-chrome-512x512.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
 </Project>

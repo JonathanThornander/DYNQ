@@ -1,16 +1,16 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace QuickDash.Core.Messaging
+namespace Dynq
 {
-    public class MessageService : IMessageService
+    public class DynqService : IDynqService
     {
-        private readonly Dictionary<Type, List<MessageSubscription>> _subscriptions = new Dictionary<Type, List<MessageSubscription>>();
+        private readonly ConcurrentDictionary<Type, List<MessageSubscription>> _subscriptions = new ConcurrentDictionary<Type, List<MessageSubscription>>();
 
-        private void StoreSubscription<TMessage>(MessageSubscription<TMessage> subscription) where TMessage : Message
+        private void RegisterSubscription<TMessage>(MessageSubscription<TMessage> subscription) where TMessage : Message
         {
             if (_subscriptions.ContainsKey(typeof(TMessage)) == false)
             {
@@ -32,34 +32,18 @@ namespace QuickDash.Core.Messaging
 
         public MessageSubscription<TMessage> Subscribe<TMessage>(Action<TMessage> receiveFunc) where TMessage : Message
         {
-            var subscription = Subscribe(receiveFunc, (message) => true);
-
-            subscription.Disposing += Subscription_Disposing;
-
-            return subscription;
-        }
-
-        private void Subscription_Disposing(object source, SubscriptionDisposingEventArgs args)
-        {
-            var subscription = (MessageSubscription)source;
-
-            _subscriptions[args.MessageType].Remove(subscription);
+            return Subscribe(receiveFunc, (message) => true);
         }
 
         public MessageSubscription<TMessage> Subscribe<TMessage>(Action<TMessage> receiveFunc, Func<TMessage, bool> shouldReceive) where TMessage : Message
         {
-            MessageSubscription<TMessage> subscription = new MessageSubscription<TMessage>(receiveFunc, shouldReceive);
+            var subscription = new MessageSubscription<TMessage>(receiveFunc, shouldReceive);
 
-            StoreSubscription(subscription);
+            RegisterSubscription(subscription);
 
             subscription.Disposing += HandleSubscriptionDisposing;
 
             return subscription;
-        }
-
-        private void HandleSubscriptionDisposing(object source, SubscriptionDisposingEventArgs args)
-        {
-            _subscriptions[args.MessageType].Remove((MessageSubscription)source);
         }
 
         public async Task BroadcastAsync<TMessage>(TMessage message) where TMessage : Message
@@ -67,15 +51,27 @@ namespace QuickDash.Core.Messaging
             if (_subscriptions.ContainsKey(message.GetType()) == false) return;
 
             var subscriptions = GetSubscriptions<TMessage>();
-            var qualifiedReceivers = subscriptions.AsParallel().Where(subscription => subscription.ShouldReceive(message));
+            var qualifiedSubscribers = subscriptions.AsParallel().Where(subscription => subscription.ShouldReceive(message));
 
             await Task.Run(() =>
             {
-                Parallel.ForEach(qualifiedReceivers, async (subscription, token) =>
+                Parallel.ForEach(qualifiedSubscribers, async (subscription, token) =>
                 {
-                    await Task.Run(() => { subscription.ReceiveMessage(message); });
+                    await Task.Run(() => { subscription.HandleMessage(message); });
                 });
             });
+        }
+
+        private void HandleSubscriptionDisposing(object source, SubscriptionDisposingEventArgs args)
+        {
+            _subscriptions[args.MessageType].Remove((MessageSubscription)source);
+        }
+
+        private void Subscription_Disposing(object source, SubscriptionDisposingEventArgs args)
+        {
+            var subscription = (MessageSubscription)source;
+
+            _subscriptions[args.MessageType].Remove(subscription);
         }
     }
 }

@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
 
-namespace QuickDash.Core.Messaging
+namespace Dynq
 {
-    public interface IMessageService
+    public interface IDynqService
     {
         Task BroadcastAsync<TMessage>(TMessage message) where TMessage : Message;
 
