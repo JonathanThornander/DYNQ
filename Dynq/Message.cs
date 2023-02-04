@@ -1,4 +1,4 @@
-﻿namespace QuickDash.Core.Messaging
+﻿namespace DYNQ
 {
     public abstract class Message
     {

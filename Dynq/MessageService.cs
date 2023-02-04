@@ -1,33 +1,60 @@
+using DYNQ.Locator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace QuickDash.Core.Messaging
+namespace DYNQ
 {
     public class MessageService : IMessageService
     {
-        private readonly Dictionary<Type, List<MessageSubscription>> _subscriptions = new Dictionary<Type, List<MessageSubscription>>();
+        private IStaticSubsriberLocator _locator = new DefaultStaticSubscriberLocator();
 
-        private void StoreSubscription<TMessage>(MessageSubscription<TMessage> subscription) where TMessage : Message
+        private readonly Dictionary<Type, IDynqSubscriber[]> _staticSubsriptions;
+        private readonly Dictionary<Type, List<MessageSubscription>> _dynamicSubscriptions;
+
+        public MessageService() : this(new DefaultStaticSubscriberLocator())
         {
-            if (_subscriptions.ContainsKey(typeof(TMessage)) == false)
-            {
-                _subscriptions[typeof(TMessage)] = new List<MessageSubscription>();
-            }
 
-            _subscriptions[typeof(TMessage)].Add(subscription);
         }
 
-        private IEnumerable<MessageSubscription<TMessage>> GetSubscriptions<TMessage>() where TMessage : Message
+        public MessageService(IStaticSubsriberLocator locator)
         {
-            if (_subscriptions.ContainsKey(typeof(TMessage)) == false)
+            _locator = locator;
+            _staticSubsriptions = _locator.LoadStaticSubscriptions();
+            _dynamicSubscriptions = new Dictionary<Type, List<MessageSubscription>>();
+        }
+
+
+        private void StoreDynamicSubscription<TMessage>(MessageSubscription<TMessage> subscription) where TMessage : Message
+        {
+            if (_dynamicSubscriptions.ContainsKey(typeof(TMessage)) == false)
+            {
+                _dynamicSubscriptions[typeof(TMessage)] = new List<MessageSubscription>();
+            }
+
+            _dynamicSubscriptions[typeof(TMessage)].Add(subscription);
+        }
+
+        private IEnumerable<MessageSubscription<TMessage>> GetDynamicSubscriptions<TMessage>() where TMessage : Message
+        {
+            if (_dynamicSubscriptions.ContainsKey(typeof(TMessage)) == false)
             {
                 return Enumerable.Empty<MessageSubscription<TMessage>>();
             }
 
-            return _subscriptions[typeof(TMessage)].Cast<MessageSubscription<TMessage>>();
+            return _dynamicSubscriptions[typeof(TMessage)].Cast<MessageSubscription<TMessage>>();
+        }
+
+        private IEnumerable<IDynqSubscriber<TMessage>> GetStaticSubscriptions<TMessage>() where TMessage : Message
+        {
+            if (_staticSubsriptions.ContainsKey(typeof(TMessage)) == false)
+            {
+                return Enumerable.Empty<IDynqSubscriber<TMessage>>();
+            }
+
+            return _staticSubsriptions[typeof(TMessage)].Cast<IDynqSubscriber<TMessage>>();
         }
 
         public MessageSubscription<TMessage> Subscribe<TMessage>(Action<TMessage> receiveFunc) where TMessage : Message
@@ -39,43 +66,55 @@ namespace QuickDash.Core.Messaging
             return subscription;
         }
 
-        private void Subscription_Disposing(object source, SubscriptionDisposingEventArgs args)
-        {
-            var subscription = (MessageSubscription)source;
-
-            _subscriptions[args.MessageType].Remove(subscription);
-        }
 
         public MessageSubscription<TMessage> Subscribe<TMessage>(Action<TMessage> receiveFunc, Func<TMessage, bool> shouldReceive) where TMessage : Message
         {
             MessageSubscription<TMessage> subscription = new MessageSubscription<TMessage>(receiveFunc, shouldReceive);
 
-            StoreSubscription(subscription);
+            StoreDynamicSubscription(subscription);
 
             subscription.Disposing += HandleSubscriptionDisposing;
 
             return subscription;
         }
 
-        private void HandleSubscriptionDisposing(object source, SubscriptionDisposingEventArgs args)
-        {
-            _subscriptions[args.MessageType].Remove((MessageSubscription)source);
-        }
-
         public async Task BroadcastAsync<TMessage>(TMessage message) where TMessage : Message
         {
-            if (_subscriptions.ContainsKey(message.GetType()) == false) return;
+            if (_dynamicSubscriptions.ContainsKey(message.GetType()) == false) return;
 
-            var subscriptions = GetSubscriptions<TMessage>();
-            var qualifiedReceivers = subscriptions.AsParallel().Where(subscription => subscription.ShouldReceive(message));
+            var dynamicSubscriptions = GetDynamicSubscriptions<TMessage>();
+            var qualifiedDynamicSubscribers = dynamicSubscriptions.AsParallel().Where(subscription => subscription.ShouldReceive(message));
 
             await Task.Run(() =>
             {
-                Parallel.ForEach(qualifiedReceivers, async (subscription, token) =>
+                Parallel.ForEach(qualifiedDynamicSubscribers, async (subscription, token) =>
                 {
-                    await Task.Run(() => { subscription.ReceiveMessage(message); });
+                    await Task.Run(() => { subscription.HandleMessage(message); });
                 });
             });
+
+            var staticSubscriptions = GetStaticSubscriptions<TMessage>();
+            var qualifiedStaticSubscribers = staticSubscriptions.AsParallel().Where(subscription => subscription.ShouldReceive(message));
+
+            await Task.Run(() =>
+            {
+                Parallel.ForEach(qualifiedStaticSubscribers, async (subscription, token) =>
+                {
+                    await Task.Run(() => { subscription.HandleMessage(message); });
+                });
+            });
+        }
+
+        private void HandleSubscriptionDisposing(object source, SubscriptionDisposingEventArgs args)
+        {
+            _dynamicSubscriptions[args.MessageType].Remove((MessageSubscription)source);
+        }
+
+        private void Subscription_Disposing(object source, SubscriptionDisposingEventArgs args)
+        {
+            var subscription = (MessageSubscription)source;
+
+            _dynamicSubscriptions[args.MessageType].Remove(subscription);
         }
     }
 }

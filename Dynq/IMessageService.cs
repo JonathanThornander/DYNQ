@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace QuickDash.Core.Messaging
+namespace DYNQ
 {
     public interface IMessageService
     {
