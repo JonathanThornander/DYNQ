@@ -1,6 +1,6 @@
 using System;
 
-namespace DYNQ
+namespace Dynq
 {
     public abstract class MessageSubscription : IDisposable
     {
