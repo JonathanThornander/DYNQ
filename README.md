@@ -3,6 +3,16 @@
 
 DYNQ (Dynamic Queue) is a light weight pub/sub -library in .NET for creating publishers and subscribers dynamicly, in runtime.
 
+## Installation
+Install DYNQ either by browsing the nuget.org feed Under 'Project -> Manage Nuget Packages'. You can also use the developer console:
+```powershell
+dotnet add package Dynq
+```
+Or with Nuget Package Manager:
+```powershell
+Install-Package Dynq
+```
+
 # DYNQ for ASPNetCore
 ![android-chrome-192x192](https://user-images.githubusercontent.com/43991450/216784972-00582b51-c98b-4048-9cd2-e92b3fc82fc3.png)
 
