@@ -26,6 +26,19 @@ Let's say you're building a Blazor component that need to react to changes from 
 
 ## Example
 ```csharp
+using Dynq;
+
+namespace Dynisplay.Messages
+{
+    public class InfoMessage : Message
+    {
+        public required string Payload { get; set; }
+    }
+}
+```
+
+
+```csharp
 @page "/"
 @inject IDynqService Dynq
 
