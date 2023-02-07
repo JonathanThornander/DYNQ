@@ -58,7 +58,7 @@ namespace Dynisplay.Messages
 ```
 
 ```csharp
-@page "/other"
+@page "/receiver"
 
 @implements IDisposable
 @inject IDynqService Dynq
@@ -72,13 +72,11 @@ namespace Dynisplay.Messages
 
     protected override void OnInitialized()
     {
-        _infoMessageSubscription = Dynq.Subscribe<InfoMessage>(HandleInfoMessage);
-    }
-
-    private void HandleInfoMessage(InfoMessage message)
-    {
-        Message = message.Payload;
-        InvokeAsync(StateHasChanged);
+        _infoMessageSubscription = Dynq.Subscribe<InfoMessage>(async message =>
+        {
+            Message = message.Payload;
+            await InvokeAsync(StateHasChanged);
+        });
     }
 
     public void Dispose()
@@ -86,5 +84,4 @@ namespace Dynisplay.Messages
         _infoMessageSubscription?.Dispose();
     }
 }
-
 ```
