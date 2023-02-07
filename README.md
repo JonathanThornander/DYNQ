@@ -23,3 +23,55 @@ builder.Services.AddDynqServices();
 ```
 
 Let's say you're building a Blazor component that need to react to changes from the application. By injecting IDynqService into the component, the component can deynamicly update depending on the content of a message for which the component subscribes to.
+
+## Example
+```csharp
+@page "/"
+@inject IDynqService Dynq
+
+<PageTitle>Index</PageTitle>
+
+<InputText @bind-Value="MessageToSend" />
+<button @onclick="SendAsync">Send</button>
+
+@code {
+    public string MessageToSend { get; set; } = string.Empty;
+
+    private async Task SendAsync()
+    {
+        await Dynq.BroadcastAsync(new InfoMessage() { Payload = MessageToSend });
+    }
+}
+```
+
+```csharp
+@page "/other"
+
+@implements IDisposable
+@inject IDynqService Dynq
+
+@Message
+
+@code {
+    private MessageSubscription? _infoMessageSubscription;
+
+    public string Message { get; set; } = "Send a message and it will appear here";
+
+    protected override void OnInitialized()
+    {
+        _infoMessageSubscription = Dynq.Subscribe<InfoMessage>(HandleInfoMessage);
+    }
+
+    private void HandleInfoMessage(InfoMessage message)
+    {
+        Message = message.Payload;
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        _infoMessageSubscription?.Dispose();
+    }
+}
+
+```
