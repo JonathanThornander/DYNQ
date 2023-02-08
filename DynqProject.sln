@@ -7,6 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dynq", "Dynq\Dynq.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dynq.AspNetCore", "Dynq.AspNetCore\Dynq.AspNetCore.csproj", "{313B90FD-F1EA-4B8F-988F-726ED9BBC01E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemoBlazor", "DemoBlazor\DemoBlazor.csproj", "{ECC00F9F-CA59-46F4-BC69-0905E21F6BC2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dynq.Blazor", "Dynq.Blazor\Dynq.Blazor.csproj", "{A291A6EC-73AD-43BA-BC5C-80BFEADF1656}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{313B90FD-F1EA-4B8F-988F-726ED9BBC01E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{313B90FD-F1EA-4B8F-988F-726ED9BBC01E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{313B90FD-F1EA-4B8F-988F-726ED9BBC01E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECC00F9F-CA59-46F4-BC69-0905E21F6BC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECC00F9F-CA59-46F4-BC69-0905E21F6BC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECC00F9F-CA59-46F4-BC69-0905E21F6BC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECC00F9F-CA59-46F4-BC69-0905E21F6BC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A291A6EC-73AD-43BA-BC5C-80BFEADF1656}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A291A6EC-73AD-43BA-BC5C-80BFEADF1656}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A291A6EC-73AD-43BA-BC5C-80BFEADF1656}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A291A6EC-73AD-43BA-BC5C-80BFEADF1656}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
