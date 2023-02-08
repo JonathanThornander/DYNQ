@@ -13,8 +13,9 @@ Or with Nuget Package Manager:
 Install-Package Dynq
 ```
 
-
 # DYNQ for Blazor
+![android-chrome-192x192](https://user-images.githubusercontent.com/43991450/217499236-0d5b91c5-0595-4268-a845-80a2b113ac42.png)
+
 DYNQ goes very well with Blazor. Let's say you're building a Blazor component that need to react to changes from the application. By injecting IDynqService into the component, the component can deynamicly update depending on the content of a message for which the component subscribes to.
 
 ## Example
