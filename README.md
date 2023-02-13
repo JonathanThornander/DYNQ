@@ -30,7 +30,7 @@ using Dynq;
 
 namespace Dynisplay.Messages
 {
-    public class InfoMessage : Message
+    public class SampleMessage : Message
     {
         public required string Payload { get; set; }
     }
