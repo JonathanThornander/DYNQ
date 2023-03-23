@@ -10,10 +10,10 @@
     <Company>Jonathan Thornander</Company>
     <Description>Contains extension methods for using Dynq with ASP.</Description>
     <Copyright>Jonathan Thornander</Copyright>
-    <PackageIcon>android-chrome-512x512.png</PackageIcon>
+    <PackageIcon>DYNQ-ASP.png</PackageIcon>
     <PackageTags>pub-sub, Dynq</PackageTags>
     <AssemblyVersion>0.0.0.1</AssemblyVersion>
-    <Version>0.0.2</Version>
+    <Version>0.0.3</Version>
     <PackageProjectUrl>https://github.com/JonathanThornander/DYNQ</PackageProjectUrl>
     <RepositoryUrl>https://github.com/JonathanThornander/DYNQ</RepositoryUrl>
   </PropertyGroup>
@@ -23,18 +23,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\..\..\..\Documents\DYNQ\DYNQ AspNetCore\favicon_io (1)\android-chrome-512x512.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Dynq\Dynq.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="DYNQ-ASP.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

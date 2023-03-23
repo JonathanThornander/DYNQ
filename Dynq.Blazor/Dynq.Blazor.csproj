@@ -4,6 +4,14 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Title>Dynq.Blazor</Title>
+    <Authors>Jonathan Thornander</Authors>
+    <Version>0.0.3</Version>
+    <Description>Adds support for using DYNQ in Blazor</Description>
+    <Copyright>Jonathan Thornander</Copyright>
+    <PackageProjectUrl>https://github.com/JonathanThornander/DYNQ</PackageProjectUrl>
+    <PackageIcon>DYNQ-Blazor.png</PackageIcon>
+    <RepositoryUrl>https://github.com/JonathanThornander/DYNQ</RepositoryUrl>
   </PropertyGroup>
 
 
@@ -17,6 +25,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Dynq.AspNetCore\Dynq.AspNetCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="DYNQ-Blazor.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
