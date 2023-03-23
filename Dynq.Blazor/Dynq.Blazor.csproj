@@ -12,6 +12,7 @@
     <PackageProjectUrl>https://github.com/JonathanThornander/DYNQ</PackageProjectUrl>
     <PackageIcon>DYNQ-Blazor.png</PackageIcon>
     <RepositoryUrl>https://github.com/JonathanThornander/DYNQ</RepositoryUrl>
+    <PackageTags>DYNQ; Pub-Sub</PackageTags>
   </PropertyGroup>
 
 
