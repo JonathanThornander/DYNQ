@@ -2,7 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Dynq
@@ -39,15 +39,19 @@ namespace Dynq
         public MessageSubscription<TMessage> Subscribe<TMessage>(Action<TMessage> receiveFunc, Func<TMessage, bool> shouldReceive) where TMessage : Message
         {
             var subscription = new MessageSubscription<TMessage>(receiveFunc, shouldReceive);
+            subscription.OnDisposingCallback = () => _subscriptions[typeof(TMessage)].Remove(subscription);
 
             RegisterSubscription(subscription);
-
-            subscription.Disposing += HandleSubscriptionDisposing;
 
             return subscription;
         }
 
         public async Task BroadcastAsync<TMessage>(TMessage message) where TMessage : Message
+        {
+            await BroadcastAsync(message, CancellationToken.None);
+        }
+
+        public async Task BroadcastAsync<TMessage>(TMessage message, CancellationToken cancellationToken = default) where TMessage : Message
         {
             if (_subscriptions.ContainsKey(message.GetType()) == false) return;
 
@@ -58,9 +62,9 @@ namespace Dynq
             {
                 Parallel.ForEach(qualifiedSubscribers, async (subscription, token) =>
                 {
-                    await Task.Run(() => { subscription.HandleMessage(message); });
+                    await Task.Run(() => { subscription.HandleMessage(message); }, cancellationToken);
                 });
-            });
+            }, cancellationToken);
         }
 
         private void HandleSubscriptionDisposing(object source, SubscriptionDisposingEventArgs args)

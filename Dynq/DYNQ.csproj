@@ -20,11 +20,4 @@
     <Content Include="favicon.ico" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\..\..\..\..\Documents\DYNQ\DYNQ Core\favicon_io\android-chrome-512x512.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
-
 </Project>

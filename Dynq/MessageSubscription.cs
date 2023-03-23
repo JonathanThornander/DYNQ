@@ -9,12 +9,13 @@ namespace Dynq
 
     public class MessageSubscription<TMessage> : MessageSubscription where TMessage : Message
     {
+        private bool _disposed = false;
+
         public Action<TMessage> HandleMessage;
 
         public Func<TMessage, bool> ShouldReceive;
 
-        public event DisposingHandler? Disposing;
-        public delegate void DisposingHandler(object source, SubscriptionDisposingEventArgs args);
+        public Action OnDisposingCallback = () => { };
 
         public MessageSubscription(Action<TMessage> receive, Func<TMessage, bool> shouldReceive)
         {
@@ -22,9 +23,22 @@ namespace Dynq
             ShouldReceive = shouldReceive;
         }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    OnDisposingCallback();
+                }
+
+                _disposed = true;
+            }
+        }
+
         public override void Dispose()
         {
-            Disposing?.Invoke(this, new SubscriptionDisposingEventArgs(typeof(TMessage)));
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
     }
