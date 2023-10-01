@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Dynq
@@ -6,6 +7,8 @@ namespace Dynq
     public interface IDynqService
     {
         Task BroadcastAsync<TMessage>(TMessage message) where TMessage : IMessage;
+
+        Task BroadcastAsync<TMessage>(TMessage message, CancellationToken cancellationToken = default) where TMessage : Message;
 
         /// <summary>
         /// Subscribes to a message for a given type.

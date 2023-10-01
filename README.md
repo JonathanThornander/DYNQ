@@ -13,77 +13,64 @@ Or with Nuget Package Manager:
 Install-Package Dynq
 ```
 
-# DYNQ for ASPNetCore
-![android-chrome-192x192](https://user-images.githubusercontent.com/43991450/216784972-00582b51-c98b-4048-9cd2-e92b3fc82fc3.png)
+# DYNQ for Blazor
+![android-chrome-192x192](https://user-images.githubusercontent.com/43991450/217499236-0d5b91c5-0595-4268-a845-80a2b113ac42.png)
 
-DYNQ suits very well in many ASP.NET-applicaion where dynamic components are behing used. To get started, add the following line in conjunction with other calls to 'builder.Services' in Program.cs
+DYNQ goes very well with Blazor. Let's say you're building a Blazor component that need to react to changes from the application. By injecting IDynqService into the component, the component can deynamicly update depending on the content of a message for which the component subscribes to.
 
+## Example
+To get started, add the following line in Program.cs. This is everything you need to set up DYNQ.
 ```csharp
 builder.Services.AddDynqServices();
 ```
 
-Let's say you're building a Blazor component that need to react to changes from the application. By injecting IDynqService into the component, the component can deynamicly update depending on the content of a message for which the component subscribes to.
-
-## Example
+A message can be created by implementing the Dyqn.Message class.
 ```csharp
 using Dynq;
 
 namespace Dynisplay.Messages
 {
-    public class InfoMessage : Message
+    public class SampleMessage : IMessage
     {
         public required string Payload { get; set; }
     }
 }
 ```
 
-
+Lets create a simple page (Blazor Component) for creating and publishing a message.
 ```csharp
+@using Dynq;
+
 @page "/"
-@inject IDynqService Dynq
+@inject IDynqService DynqService;
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Sender</PageTitle>
 
-<InputText @bind-Value="MessageToSend" />
-<button @onclick="SendAsync">Send</button>
+<InputText @bind-Value="TextToSend" />
+<button @onclick="SendMessage">Send</button>
 
 @code {
-    public string MessageToSend { get; set; } = string.Empty;
+    public string TextToSend { get; set; } = string.Empty;
 
-    private async Task SendAsync()
+    private async Task SendMessage()
     {
-        await Dynq.BroadcastAsync(new InfoMessage() { Payload = MessageToSend });
+        await DynqService.BroadcastAsync(new SampleMessage { Payload = TextToSend });
     }
 }
 ```
 
+Let's now create a page (Blazor Component) that listens for new messages and displays it's content on screen. By wrapping other components with DynqListen, the components will be triggered for re-render whenever a new message of the given type is broadcasted. The content of the message can be accessed through the '@context'-variable.
 ```csharp
+@using Dynq.Blazor
+
 @page "/receiver"
 
-@implements IDisposable
-@inject IDynqService Dynq
+<PageTitle>Receiver</PageTitle>
 
-@Message
-
-@code {
-    private MessageSubscription? _infoMessageSubscription;
-
-    public string Message { get; set; } = "Send a message and it will appear here";
-
-    protected override void OnInitialized()
-    {
-        _infoMessageSubscription = Dynq.Subscribe<InfoMessage>(async message =>
-        {
-            Message = message.Payload;
-            await InvokeAsync(StateHasChanged);
-        });
-    }
-
-    public void Dispose()
-    {
-        _infoMessageSubscription?.Dispose();
-    }
-}
+<DynqListen TMessage="SampleMessage">
+    @(context?.Payload ?? "Listening...")
+</DynqListen>
 ```
-![image](https://user-images.githubusercontent.com/43991450/217243713-efeeee7e-1176-49ee-93fe-a32525a64eca.png)
-![image](https://user-images.githubusercontent.com/43991450/217243945-e4f79cae-3817-4880-b0ae-236f4bb4f5de.png)
+
+![image](https://user-images.githubusercontent.com/43991450/217478562-64fba31b-d2cb-45cb-9cc6-39220aab58d4.png)
+![image](https://user-images.githubusercontent.com/43991450/217478693-c92f2777-731a-499f-8f1c-ae247930cfb9.png)
