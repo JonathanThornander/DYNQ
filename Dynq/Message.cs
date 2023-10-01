@@ -1,6 +1,6 @@
 ﻿namespace Dynq
 {
-    public abstract class Message
+    public interface IMessage
     {
 
     }

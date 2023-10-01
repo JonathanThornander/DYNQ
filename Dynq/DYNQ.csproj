@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ApplicationIcon>favicon.ico</ApplicationIcon>
     <Title>DYNQ</Title>
-    <Version>0.0.2</Version>
+    <Version>2023.09.30.1</Version>
     <Authors>Jonathan Thornander</Authors>
     <Company>Jonathan Thornander</Company>
     <Description>A lightweight pub/sub -library for creating message handlers in runtime</Description>

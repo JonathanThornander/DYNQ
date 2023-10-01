@@ -13,7 +13,7 @@
     <PackageIcon>android-chrome-512x512.png</PackageIcon>
     <PackageTags>pub-sub, Dynq</PackageTags>
     <AssemblyVersion>0.0.0.1</AssemblyVersion>
-    <Version>2023.09.30.1</Version>
+    <Version>0.0.4</Version>
     <PackageProjectUrl>https://github.com/JonathanThornander/DYNQ</PackageProjectUrl>
     <RepositoryUrl>https://github.com/JonathanThornander/DYNQ</RepositoryUrl>
   </PropertyGroup>

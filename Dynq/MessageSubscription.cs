@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 
 namespace Dynq
 {
@@ -7,16 +8,16 @@ namespace Dynq
         public abstract void Dispose();
     }
 
-    public class MessageSubscription<TMessage> : MessageSubscription where TMessage : Message
+    public class MessageSubscription<TMessage> : MessageSubscription where TMessage : IMessage
     {
-        public Action<TMessage> HandleMessage;
+        public Func<TMessage, Task> HandleMessage;
 
         public Func<TMessage, bool> ShouldReceive;
 
         public event DisposingHandler? Disposing;
         public delegate void DisposingHandler(object source, SubscriptionDisposingEventArgs args);
 
-        public MessageSubscription(Action<TMessage> receive, Func<TMessage, bool> shouldReceive)
+        public MessageSubscription(Func<TMessage, Task> receive, Func<TMessage, bool> shouldReceive)
         {
             HandleMessage = receive;
             ShouldReceive = shouldReceive;

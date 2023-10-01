@@ -4,8 +4,6 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>2023.09.30.1</Version>
-    <Title>Dynq Blazor</Title>
   </PropertyGroup>
 
 

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Dynq
@@ -11,17 +10,12 @@ namespace Dynq
     {
         private readonly ConcurrentDictionary<Type, List<MessageSubscription>> _subscriptions = new ConcurrentDictionary<Type, List<MessageSubscription>>();
 
-        private void RegisterSubscription<TMessage>(MessageSubscription<TMessage> subscription) where TMessage : Message
+        private void RegisterSubscription<TMessage>(MessageSubscription<TMessage> subscription) where TMessage : IMessage
         {
-            if (_subscriptions.ContainsKey(typeof(TMessage)) == false)
-            {
-                _subscriptions[typeof(TMessage)] = new List<MessageSubscription>();
-            }
-
-            _subscriptions[typeof(TMessage)].Add(subscription);
+            _subscriptions.GetOrAdd(typeof(TMessage), _ => new List<MessageSubscription>()).Add(subscription);
         }
 
-        private IEnumerable<MessageSubscription<TMessage>> GetSubscriptions<TMessage>() where TMessage : Message
+        private IEnumerable<MessageSubscription<TMessage>> GetSubscriptions<TMessage>() where TMessage : IMessage
         {
             if (_subscriptions.ContainsKey(typeof(TMessage)) == false)
             {
@@ -31,12 +25,12 @@ namespace Dynq
             return _subscriptions[typeof(TMessage)].Cast<MessageSubscription<TMessage>>();
         }
 
-        public MessageSubscription<TMessage> Subscribe<TMessage>(Action<TMessage> receiveFunc) where TMessage : Message
+        public MessageSubscription<TMessage> Subscribe<TMessage>(Func<TMessage, Task> receiveFunc) where TMessage : IMessage
         {
             return Subscribe(receiveFunc, (message) => true);
         }
 
-        public MessageSubscription<TMessage> Subscribe<TMessage>(Action<TMessage> receiveFunc, Func<TMessage, bool> shouldReceive) where TMessage : Message
+        public MessageSubscription<TMessage> Subscribe<TMessage>(Func<TMessage, Task> receiveFunc, Func<TMessage, bool> shouldReceive) where TMessage : IMessage
         {
             var subscription = new MessageSubscription<TMessage>(receiveFunc, shouldReceive);
 
@@ -47,20 +41,14 @@ namespace Dynq
             return subscription;
         }
 
-        public async Task BroadcastAsync<TMessage>(TMessage message) where TMessage : Message
+        public async Task BroadcastAsync<TMessage>(TMessage message) where TMessage : IMessage
         {
             if (_subscriptions.ContainsKey(message.GetType()) == false) return;
 
             var subscriptions = GetSubscriptions<TMessage>();
             var qualifiedSubscribers = subscriptions.AsParallel().Where(subscription => subscription.ShouldReceive(message));
 
-            await Task.Run(() =>
-            {
-                Parallel.ForEach(qualifiedSubscribers, async (subscription, token) =>
-                {
-                    await Task.Run(() => { subscription.HandleMessage(message); });
-                });
-            });
+            await Task.WhenAll(qualifiedSubscribers.Select(subscription => subscription.HandleMessage(message)));
         }
 
         private void HandleSubscriptionDisposing(object source, SubscriptionDisposingEventArgs args)
