@@ -8,7 +8,7 @@ namespace Dynq
     {
         Task BroadcastAsync<TMessage>(TMessage message) where TMessage : IMessage;
 
-        Task BroadcastAsync<TMessage>(TMessage message, CancellationToken cancellationToken = default) where TMessage : Message;
+        Task BroadcastAsync<TMessage>(TMessage message, CancellationToken cancellationToken = default) where TMessage : IMessage;
 
         /// <summary>
         /// Subscribes to a message for a given type.

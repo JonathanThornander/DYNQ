@@ -2,13 +2,13 @@
 using System.Linq;
 using System.Reflection;
 
-namespace Dynq.AspNetCore
+namespace Dynq
 {
-    public static class DynqAspExtensions
+    public static class DynqExtensions
     {
-        public static void AddDynqServices(this IServiceCollection serviceCollection) => AddDynqServices(serviceCollection, new Assembly[0]);
+        public static void AddDynq(this IServiceCollection serviceCollection) => serviceCollection.AddDynq(new Assembly[] { Assembly.GetCallingAssembly() });
 
-        public static void AddDynqServices(this IServiceCollection serviceCollection, Assembly[] assemblies)
+        public static void AddDynq(this IServiceCollection serviceCollection, Assembly[] assemblies)
         {
             serviceCollection.AddSingleton<IDynqService, DynqService>();
 

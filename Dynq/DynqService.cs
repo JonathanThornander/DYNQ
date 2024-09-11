@@ -1,13 +1,22 @@
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Dynq
 {
     public class DynqService : IDynqService
     {
+        private readonly IServiceProvider _serviceProvider;
+
+        public DynqService(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+        }
+
         private readonly ConcurrentDictionary<Type, List<MessageSubscription>> _subscriptions = new ConcurrentDictionary<Type, List<MessageSubscription>>();
 
         private void RegisterSubscription<TMessage>(MessageSubscription<TMessage> subscription) where TMessage : IMessage
@@ -23,6 +32,11 @@ namespace Dynq
             }
 
             return _subscriptions[typeof(TMessage)].Cast<MessageSubscription<TMessage>>();
+        }
+
+        private IEnumerable<IDynqListner<TMessage>> GetListners<TMessage>() where TMessage : IMessage
+        {
+            return _serviceProvider.GetServices<IDynqListner<TMessage>>();
         }
 
         public MessageSubscription<TMessage> Subscribe<TMessage>(Func<TMessage, Task> receiveFunc) where TMessage : IMessage
@@ -41,14 +55,25 @@ namespace Dynq
             return subscription;
         }
 
-        public async Task BroadcastAsync<TMessage>(TMessage message) where TMessage : IMessage
+        public Task BroadcastAsync<TMessage>(TMessage message) where TMessage : IMessage => BroadcastAsync(message, CancellationToken.None);
+
+        public async Task BroadcastAsync<TMessage>(TMessage message, CancellationToken cancellationToken = default) where TMessage : IMessage
         {
-            if (_subscriptions.ContainsKey(message.GetType()) == false) return;
+            var listners = GetListners<TMessage>();
 
-            var subscriptions = GetSubscriptions<TMessage>();
-            var qualifiedSubscribers = subscriptions.AsParallel().Where(subscription => subscription.ShouldReceive(message));
+            if (_subscriptions.ContainsKey(message.GetType()))
+            {
+                var subscriptions = GetSubscriptions<TMessage>();
 
-            await Task.WhenAll(qualifiedSubscribers.Select(subscription => subscription.HandleMessage(message)));
+                var qualifiedSubscribers = subscriptions.AsParallel().Where(subscription => subscription.ShouldReceive(message));
+
+                await Task.WhenAll(qualifiedSubscribers.Select(subscription => subscription.HandleMessage(message)));
+            }
+
+            if (listners.Any())
+            {
+                await Task.WhenAll(listners.Select(listner => listner.HandleMessage(message)));
+            }    
         }
 
         private void HandleSubscriptionDisposing(object source, SubscriptionDisposingEventArgs args)
