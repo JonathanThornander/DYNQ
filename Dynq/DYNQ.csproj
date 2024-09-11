@@ -1,16 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>enable</Nullable>
     <ApplicationIcon>favicon.ico</ApplicationIcon>
     <Title>DYNQ</Title>
-    <Version>2023.09.30.1</Version>
+    <Version>2024.9.11.1</Version>
     <Authors>Jonathan Thornander</Authors>
     <Company>Jonathan Thornander</Company>
     <Description>A lightweight pub/sub -library for creating message handlers in runtime</Description>
     <Copyright>Jonathan Thornander</Copyright>
-    <PackageIcon>android-chrome-512x512.png</PackageIcon>
+    <PackageIcon>DYNQ-ASP.png</PackageIcon>
     <PackageTags>Pub-Sub</PackageTags>
     <RepositoryUrl>https://github.com/JonathanThornander/DYNQ</RepositoryUrl>
     <PackageProjectUrl>https://github.com/JonathanThornander/DYNQ</PackageProjectUrl>
@@ -21,7 +21,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\Dynq.AspNetCore\DYNQ-ASP.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="DYNQ.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
